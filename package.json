@@ -1,0 +1,19 @@
+{
+  "name": "idcadminbackendaws",
+  "version": "1.0.0",
+  "description": "Backend code for IDC Admin app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suchendra1/idcadminbackend.git"
+  },
+  "author": "suchendra",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/suchendra1/idcadminbackend/issues"
+  },
+  "homepage": "https://github.com/suchendra1/idcadminbackend#readme"
+}
