@@ -1,6 +1,9 @@
+require('dotenv').config();
+
 const jwt = require("jsonwebtoken")
 const express = require("express")
 const cors=require("cors");
+const mysql = require("mysql");
 const req = require("express/lib/request");
 
 const app = express();
@@ -8,9 +11,9 @@ const app = express();
 app.use(express.json())
 
 const corsOptions ={
-      origin:'*', 
-      credentials:true,            //access-control-allow-credentials:true
-      optionSuccessStatus:200,
+    origin:'*', 
+    credentials:true,            //access-control-allow-credentials:true
+    optionSuccessStatus:200,
 }
 
 app.use(cors(corsOptions))
@@ -28,13 +31,20 @@ connection.connect(err=>{
         console.log(err)
     else{
         console.log("Connected to IDC database...");
-        const sql = "CREATE TABLE IF NOT EXISTS admin(id varchar(50) NOT NULL UNIQUE, password varchar(50) NOT NULL);";
+        const sql = "CREATE TABLE IF NOT EXISTS admin(id varchar(50) PRIMARY KEY, password varchar(50) NOT NULL);";
         connection.query(sql,(err,result)=>{
             if(err)
                 console.log(err)
             else
                 console.log("Admin table created or it already exists!!!");
-        })
+        });
+        const counts_sql = "CREATE TABLE IF NOT EXISTS counts (userLogins int(15), doctorLogins INT(15), labtechLogins INT(15));";
+        connection.query(counts_sql,(err,result)=>{
+            if(err)
+                console.log(err)
+            else
+                console.log("Counts table created ot it already exists!!!");
+        });
     }
 })
 
@@ -72,8 +82,8 @@ const getDoctorDetails = () => {
 }
 
 const getAdminDetails = (id) => {
-    let sql = `SELECT * FROM admin`;
-    sql += (id === undefined) ? `` : `WHERE id=${id};`;
+    let sql = `SELECT * FROM admin `;
+    sql += (id === undefined) ? `` : `WHERE id="${id}";`;
     return new Promise((resolve,reject)=>{
         connection.query(sql,(err,result)=>{
             if(err)
@@ -82,6 +92,7 @@ const getAdminDetails = (id) => {
         })
     })
 }
+
 app.get("/doctorlist",async (req,res)=>{
     const doctorlist = await getDoctorDetails();
     res.send({list:doctorlist})
@@ -99,38 +110,75 @@ app.get("/labtechlist",async(req,res)=>{
 
 app.get("/counts",async(req,res)=>{
     let labtechLogins,usersRegistered,doctorLogins,labtechsRegistered,userLogins,doctorsRegistered;
+    const sql = "SELECT * FROM counts;";
+    connection.query(sql,(err,result)=>{
+        console.log(result)
+        if(err)
+            console.log(err);
+        else{
+            userLogins = result[0].userLogins;
+            doctorLogins = result[0].doctorLogins;
+            labtechLogins = result[0].labtechLogins;
+        }
+    });
+    const usersRegisteredsql = "SELECT COUNT(memberid) as usersRegistered FROM users;";
+    connection.query(usersRegisteredsql,(err,result)=>{
+        if(err)
+            console.log(err)
+        else{
+            usersRegistered = result[0].usersRegistered;
+        }
+    });
+    const labtechregisteredsql = "SELECT COUNT(mobile) as labtechsRegistered FROM labtech;";
+    connection.query(labtechregisteredsql,(err,result)=>{
+        if(err)
+            console.log(err)
+        else{
+            labtechsRegistered = result[0].labtechsRegistered;
+        }
+    });
+    const doctorsRegisteredsql = "SELECT COUNT(mobile) as doctorsRegistered FROM doctor;";
+    connection.query(doctorsRegisteredsql,(err,result)=>{
+        if(err)
+            console.log(err)
+        else{
+            doctorsRegistered = result[0].doctorsRegistered;
+        }
+        res.send({labtechLogins,usersRegistered,doctorLogins,labtechsRegistered,userLogins,doctorsRegistered});
+    });
 })
 
 app.post("/doctor",async(req,res)=>{
     const {id,mobile, name, password} = req.body
-    if((name===undefined || name === "")&&(mobile===undefined || mobile.length===10)&&(password===undefined||password==="")&&(blocked!=="yes"||blocked!=="no"))
+    let {blocked} = req.body;
+    if(blocked)
+        blocked = blocked.toUpperCase();
+    if((name===undefined || name === "")&&(mobile===undefined || mobile.length===10)&&(password===undefined||password==="")&&(blocked!=="YES"||blocked!=="NO"))
         res.send({"message":"Nothing to update"})
     else{
             if(name!==undefined && name !== ""){
-                const update_sql=`UPDATE TABLE doctor SET name="${name}" WHERE id="${id}";`;
+                const update_sql=`UPDATE doctor SET name="${name}" WHERE id="${id}";`;
                 connection.query(update_sql,(err,result)=>{
                     if(err){
                         console.log(err);
                         res.status(400);
                         res.send({"message":"Update Failed!"});
                     }
-                    else{
+                    else
                         res.send({"message":"Update successfull!!!"})
-                    }
                 })
             }
-            if(mobile!==undefined&&mobile.length===10)
+            if(mobile!==undefined && mobile.length===10)
             {
-                const update_sql=`UPDATE TABLE doctor SET name="${name}" WHERE id="${id}";`;
+                const update_sql=`UPDATE TABLE doctor SET mobile="${mobile}" WHERE id="${id}";`;
                 connection.query(update_sql,(err,result)=>{
                     if(err){
                         console.log(err);
                         res.status(400);
                         res.send({"message":"Update Failed!"});
                     }
-                    else{
+                    else
                         res.send({"message":"Update successfull!!!"})
-                    }
                 })
             }
             if(password!==undefined && password!=="")
@@ -147,7 +195,7 @@ app.post("/doctor",async(req,res)=>{
                     }
                 })
             }
-            if(blocked===true||blocked===false)
+            if(blocked==="YES"||blocked==="NO")
             {
                 const update_sql=`UPDATE TABLE doctor SET blocked="${blocked}" WHERE id="${id}";`;
                 connection.query(update_sql,(err,result)=>{
@@ -165,8 +213,11 @@ app.post("/doctor",async(req,res)=>{
 })
 
 app.post("/user",async(req,res)=>{
-    const {id,mobile, name, password} = req.body
-    if((name===undefined||name==="" )&&(mobile===undefined||mobile.length!==10)&&(password===undefined||password==="")&&(blocked!=="yes"||blocked!=="no"))
+    const {id,memberid, name, password} = req.body
+    let {blocked} = req.body;
+    if(blocked)
+        blocked = blocked.toUpperCase();
+    if((name===undefined||name==="" )&&(mobile===undefined||mobile.length!==10)&&(password===undefined||password==="")&&(blocked!=="YES"||blocked!=="NO"))
         res.send({"message":"nothing to update"})
     else{
         if(name!==undefined && name !== ""){
@@ -182,7 +233,7 @@ app.post("/user",async(req,res)=>{
                 }
             })
         }
-        if(mobile !== undefined && mobile.lenth===10){
+        if(mobile !== undefined && mobile.length === 10){
             const update_sql=`UPDATE TABLE users SET mobile="${mobile}" WHERE id="${id}";`;
             connection.query(update_sql,(err,result)=>{
                 if(err){
@@ -190,9 +241,8 @@ app.post("/user",async(req,res)=>{
                     res.status(400);
                     res.send({"message":"Update Failed!"});
                 }
-                else{
+                else
                     res.send({"message":"Update successfull!!!"})
-                }
             })
         }
         if(password !== undefined && password!==""){
@@ -208,7 +258,7 @@ app.post("/user",async(req,res)=>{
                 }
             })
         }
-        if(blocked===true||blocked===false){
+        if(blocked==="YES"||blocked==="NO"){
             const update_sql=`UPDATE TABLE users SET blocked="${blocked}" WHERE id="${id}";`;
             connection.query(update_sql,(err,result)=>{
                 if(err){
@@ -225,8 +275,11 @@ app.post("/user",async(req,res)=>{
 })
 
 app.post("/labtech",async(req,res)=>{
-    const {id,mobile, name, password,blocked} = req.body
-    if((name===undefined || name === "")&&(mobile===undefined || mobile.length===10)&&(password===undefined||password==="")&&(blocked!=="yes"||blocked!=="no"))
+    const {id,mobile, name, password} = req.body
+    let {blocked} = req.body;
+    if(blocked)
+        blocked = blocked.toUpperCase();
+    if((name===undefined || name === "")&&(mobile===undefined || mobile.length===10)&&(password===undefined||password==="")&&(blocked!=="YES"||blocked!=="NO"))
         res.send({"message":"Nothing to update!!!"})
     else{
         if(name!==undefined && name !== ""){
@@ -268,7 +321,7 @@ app.post("/labtech",async(req,res)=>{
                 }
             })
         }
-        if(blocked===true||blocked===false){
+        if(blocked==="YES"||blocked==="NO"){
             const update_sql=`UPDATE TABLE users SET blocked="${blocked}" WHERE id="${id}";`;
             connection.query(update_sql,(err,result)=>{
                 if(err){
