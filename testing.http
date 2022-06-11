@@ -1,4 +1,4 @@
-GET http://localhost:3010/doctorlist
+GET http://localhost:3010/admin/doctorlist
 
 ###
 GET http://localhost:3010/userlist
@@ -38,3 +38,27 @@ Content-Type: application/json
 
 ###
 GET http://localhost:3010/counts
+
+###
+DELETE http://localhost:3010/doctor
+Content-Type: application/json
+
+{
+    "mobile":"admin2"
+}
+
+###
+DELETE http://localhost:3010/doctor
+Content-Type: application/json
+
+{
+    "mobile":"admin2"
+}
+
+###
+DELETE http://localhost:3010/user
+Content-Type: application/json
+
+{
+    "memberid":"sai"
+}

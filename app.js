@@ -402,4 +402,4 @@ app.delete("/labtech",async(req,res)=>{
 })
 
 const port = process.env.PORT || 3010;
-app.listen(port,()=>{console.log("Listening to port 3010!")}); 
+app.listen(port,()=>{console.log(`Listening to port ${port}!`)}); 
