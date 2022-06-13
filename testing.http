@@ -60,5 +60,5 @@ DELETE http://localhost:3010/user
 Content-Type: application/json
 
 {
-    "memberid":"sai"
+    "memberid":"IDC0003"
 }

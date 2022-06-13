@@ -155,123 +155,139 @@ app.post("/doctor",async(req,res)=>{
         blocked = blocked.toUpperCase();
     if((name===undefined || name === "")&&(mobile===undefined || mobile.length===10)&&(password===undefined||password==="")&&(blocked!=="YES"||blocked!=="NO"))
         res.send({"message":"Nothing to update"})
-    else{
-            if(name!==undefined && name !== ""){
-                const update_sql=`UPDATE doctor SET name="${name}" WHERE id="${id}";`;
-                connection.query(update_sql,(err,result)=>{
-                    if(err){
-                        console.log(err);
-                        res.status(400);
-                        res.send({"message":"Update Failed!"});
-                    }
-                    else
-                        res.send({"message":"Update successfull!!!"})
-                })
-            }
-            if(mobile!==undefined && mobile.length===10)
-            {
-                const update_sql=`UPDATE TABLE doctor SET mobile="${mobile}" WHERE id="${id}";`;
-                connection.query(update_sql,(err,result)=>{
-                    if(err){
-                        console.log(err);
-                        res.status(400);
-                        res.send({"message":"Update Failed!"});
-                    }
-                    else
-                        res.send({"message":"Update successfull!!!"})
-                })
-            }
-            if(password!==undefined && password!=="")
-            {
-                const update_sql=`UPDATE TABLE doctor SET \`password\`="${password}" WHERE id="${id}";`;
-                connection.query(update_sql,(err,result)=>{
-                    if(err){
-                        console.log(err);
-                        res.status(400);
-                        res.send({"message":"Update Failed!"});
-                    }
-                    else{
-                        res.send({"message":"Update successfull!!!"})
-                    }
-                })
-            }
-            if(blocked==="YES"||blocked==="NO")
-            {
-                const update_sql=`UPDATE TABLE doctor SET blocked="${blocked}" WHERE id="${id}";`;
-                connection.query(update_sql,(err,result)=>{
-                    if(err){
-                        console.log(err);
-                        res.status(400);
-                        res.send({"message":"Update Failed!"});
-                    }
-                    else{
-                        res.send({"message":"Update successfull!!!"})
-                    }
-                })
-            }
-    }
+        else{
+            const sql = `update doctor set blocked = "${blocked}", name="${name}",password="${password}",mobile="${mobile}" WHERE id=${id};`;
+            connection.query(sql,(err,result)=>{
+                if(err)
+                    console.log(err)
+                res.send({"message":"Update successfull!!!"})
+            })
+        }
+    // else{
+    //         if(name!==undefined && name !== ""){
+    //             const update_sql=`UPDATE doctor SET name="${name}" WHERE id="${id}";`;
+    //             connection.query(update_sql,(err,result)=>{
+    //                 if(err){
+    //                     console.log(err);
+    //                     res.status(400);
+    //                     res.send({"message":"Update Failed!"});
+    //                 }
+    //                 else
+    //                     res.send({"message":"Update successfull!!!"})
+    //             })
+    //         }
+    //         if(mobile!==undefined && mobile.length===10)
+    //         {
+    //             const update_sql=`UPDATE doctor SET mobile="${mobile}" WHERE id="${id}";`;
+    //             connection.query(update_sql,(err,result)=>{
+    //                 if(err){
+    //                     console.log(err);
+    //                     res.status(400);
+    //                     res.send({"message":"Update Failed!"});
+    //                 }
+    //                 else
+    //                     res.send({"message":"Update successfull!!!"})
+    //             })
+    //         }
+    //         if(password!==undefined && password!=="")
+    //         {
+    //             const update_sql=`UPDATE doctor SET \`password\`="${password}" WHERE id="${id}";`;
+    //             connection.query(update_sql,(err,result)=>{
+    //                 if(err){
+    //                     console.log(err);
+    //                     res.status(400);
+    //                     res.send({"message":"Update Failed!"});
+    //                 }
+    //                 else{
+    //                     res.send({"message":"Update successfull!!!"})
+    //                 }
+    //             })
+    //         }
+    //         if(blocked==="YES"||blocked==="NO")
+    //         {
+    //             const update_sql=`UPDATE doctor SET blocked="${blocked}" WHERE id="${id}";`;
+    //             connection.query(update_sql,(err,result)=>{
+    //                 if(err){
+    //                     console.log(err);
+    //                     res.status(400);
+    //                     res.send({"message":"Update Failed!"});
+    //                 }
+    //                 else{
+    //                     res.send({"message":"Update successfull!!!"})
+    //                 }
+    //             })
+    //         }
+    // }
 })
 
 app.post("/user",async(req,res)=>{
-    const {id,memberid, name, password} = req.body
+    const {id,memberid, name, password,mobile} = req.body
     let {blocked} = req.body;
     if(blocked)
         blocked = blocked.toUpperCase();
     if((name===undefined||name==="" )&&(mobile===undefined||mobile.length!==10)&&(password===undefined||password==="")&&(blocked!=="YES"||blocked!=="NO"))
         res.send({"message":"nothing to update"})
     else{
-        if(name!==undefined && name !== ""){
-            const update_sql=`UPDATE TABLE users SET name="${name}" WHERE id="${id}";`;
-            connection.query(update_sql,(err,result)=>{
-                if(err){
-                    console.log(err);
-                    res.status(400);
-                    res.send({"message":"Update Failed!"});
-                }
-                else{
-                    res.send({"message":"Update successfull!!!"})
-                }
-            })
-        }
-        if(mobile !== undefined && mobile.length === 10){
-            const update_sql=`UPDATE TABLE users SET mobile="${mobile}" WHERE id="${id}";`;
-            connection.query(update_sql,(err,result)=>{
-                if(err){
-                    console.log(err);
-                    res.status(400);
-                    res.send({"message":"Update Failed!"});
-                }
-                else
-                    res.send({"message":"Update successfull!!!"})
-            })
-        }
-        if(password !== undefined && password!==""){
-            const update_sql=`UPDATE TABLE users SET \`password\`="${password}" WHERE id="${id}";`;
-            connection.query(update_sql,(err,result)=>{
-                if(err){
-                    console.log(err);
-                    res.status(400);
-                    res.send({"message":"Update Failed!"});
-                }
-                else{
-                    res.send({"message":"Update successfull!!!"})
-                }
-            })
-        }
-        if(blocked==="YES"||blocked==="NO"){
-            const update_sql=`UPDATE TABLE users SET blocked="${blocked}" WHERE id="${id}";`;
-            connection.query(update_sql,(err,result)=>{
-                if(err){
-                    console.log(err);
-                    res.status(400);
-                    res.send({"message":"Update Failed!"});
-                }
-                else{
-                    res.send({"message":"Update successfull!!!"})
-                }
-            })
-        }
+        const sql = `update users set blocked = "${blocked}", name="${name}",password="${password}",mobile="${mobile}" WHERE id=${id};`;
+        connection.query(sql,(err,result)=>{
+            if(err)
+                console.log(err)
+            res.send({"message":"Update successfull!!!"})
+        })
     }
+    // else{
+    //     if(name!==undefined && name !== ""){
+    //         const update_sql=`UPDATE users SET name="${name}" WHERE id="${id}";`;
+    //         connection.query(update_sql,(err,result)=>{
+    //             if(err){
+    //                 console.log(err);
+    //                 res.status(400);
+    //                 res.send({"message":"Update name Failed!"});
+    //             }
+    //             else{
+    //                 res.send({"message":"Update name successfull!!!"})
+    //             }
+    //         })
+    //     }
+    //     if(mobile !== undefined && mobile.length === 10){
+    //         const update_sql=`UPDATE users SET mobile="${mobile}" WHERE id="${id}";`;
+    //         connection.query(update_sql,(err,result)=>{
+    //             if(err){
+    //                 console.log(err);
+    //                 res.status(400);
+    //                 res.send({"message":"Update mobile Failed!"});
+    //             }
+    //             else
+    //                 res.send({"message":"Update successfull!!!"})
+    //         })
+    //     }
+    //     if(password !== undefined && password!==""){
+    //         const update_sql=`UPDATE users SET \`password\`="${password}" WHERE id="${id}";`;
+    //         connection.query(update_sql,(err,result)=>{
+    //             if(err){
+    //                 console.log(err);
+    //                 res.status(400);
+    //                 res.send({"message":"Update Failed!"});
+    //             }
+    //             else{
+    //                 res.send({"message":"Update password successfull!!!"})
+    //             }
+    //         })
+    //     }
+    //     if(blocked==="YES"||blocked==="NO"){
+    //         const update_sql=`UPDATE users SET blocked="${blocked}" WHERE id="${id}";`;
+    //         connection.query(update_sql,(err,result)=>{
+    //             if(err){
+    //                 console.log(err);
+    //                 res.status(400);
+    //                 res.send({"message":"Update Failed!"});
+    //             }
+    //             else{
+    //                 res.send({"message":"Update blocked successfull!!!"})
+    //             }
+    //         })
+    //     }
+    // }
 })
 
 app.post("/labtech",async(req,res)=>{
@@ -282,59 +298,67 @@ app.post("/labtech",async(req,res)=>{
     if((name===undefined || name === "")&&(mobile===undefined || mobile.length===10)&&(password===undefined||password==="")&&(blocked!=="YES"||blocked!=="NO"))
         res.send({"message":"Nothing to update!!!"})
     else{
-        if(name!==undefined && name !== ""){
-            const update_sql=`UPDATE TABLE labtech SET name="${name}" WHERE id="${id}";`;
-            connection.query(update_sql,(err,result)=>{
-                if(err){
-                    console.log(err);
-                    res.status(400);
-                    res.send({"message":"Update Failed!"});
-                }
-                else{
-                    res.send({"message":"Update successfull!!!"})
-                }
-            })
-        }
-        if(mobile !== undefined && mobile.lenth===10){
-            const update_sql=`UPDATE TABLE users SET mobile="${mobile}" WHERE id="${id}";`;
-            connection.query(update_sql,(err,result)=>{
-                if(err){
-                    console.log(err);
-                    res.status(400);
-                    res.send({"message":"Update Failed!"});
-                }
-                else{
-                    res.send({"message":"Update successfull!!!"})
-                }
-            })
-        }
-        if(password !== undefined && password!==""){
-            const update_sql=`UPDATE TABLE users SET \`password\`="${name}" WHERE id="${id}";`;
-            connection.query(update_sql,(err,result)=>{
-                if(err){
-                    console.log(err);
-                    res.status(400);
-                    res.send({"message":"Update Failed!"});
-                }
-                else{
-                    res.send({"message":"Update successfull!!!"})
-                }
-            })
-        }
-        if(blocked==="YES"||blocked==="NO"){
-            const update_sql=`UPDATE TABLE users SET blocked="${blocked}" WHERE id="${id}";`;
-            connection.query(update_sql,(err,result)=>{
-                if(err){
-                    console.log(err);
-                    res.status(400);
-                    res.send({"message":"Update Failed!"});
-                }
-                else{
-                    res.send({"message":"Update successfull!!!"})
-                }
-            })
-        }
+        const sql = `update labtech set blocked = "${blocked}", name="${name}",password="${password}",mobile="${mobile}" WHERE id=${id};`;
+        connection.query(sql,(err,result)=>{
+            if(err)
+                console.log(err)
+            res.send({"message":"Update successfull!!!"})
+        })
     }
+    // else{
+    //     if(name!==undefined && name !== ""){
+    //         const update_sql=`UPDATE labtech SET name="${name}" WHERE id="${id}";`;
+    //         connection.query(update_sql,(err,result)=>{
+    //             if(err){
+    //                 console.log(err);
+    //                 res.status(400);
+    //                 res.send({"message":"Update Failed!"});
+    //             }
+    //             else{
+    //                 res.send({"message":"Update successfull!!!"})
+    //             }
+    //         })
+    //     }
+    //     if(mobile !== undefined && mobile.lenth===10){
+    //         const update_sql=`UPDATE users SET mobile="${mobile}" WHERE id="${id}";`;
+    //         connection.query(update_sql,(err,result)=>{
+    //             if(err){
+    //                 console.log(err);
+    //                 res.status(400);
+    //                 res.send({"message":"Update Failed!"});
+    //             }
+    //             else{
+    //                 res.send({"message":"Update successfull!!!"})
+    //             }
+    //         })
+    //     }
+    //     if(password !== undefined && password!==""){
+    //         const update_sql=`UPDATE users SET \`password\`="${name}" WHERE id="${id}";`;
+    //         connection.query(update_sql,(err,result)=>{
+    //             if(err){
+    //                 console.log(err);
+    //                 res.status(400);
+    //                 res.send({"message":"Update Failed!"});
+    //             }
+    //             else{
+    //                 res.send({"message":"Update successfull!!!"})
+    //             }
+    //         })
+    //     }
+    //     if(blocked==="YES"||blocked==="NO"){
+    //         const update_sql=`UPDATE users SET blocked="${blocked}" WHERE id="${id}";`;
+    //         connection.query(update_sql,(err,result)=>{
+    //             if(err){
+    //                 console.log(err);
+    //                 res.status(400);
+    //                 res.send({"message":"Update Failed!"});
+    //             }
+    //             else{
+    //                 res.send({"message":"Update successfull!!!"})
+    //             }
+    //         })
+    //     }
+    // }
 })
 
 app.post("/login",async(req,res)=>{
